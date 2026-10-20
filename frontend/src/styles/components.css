@@ -1,0 +1,492 @@
+/* Анимация изменения баланса в шапке */
+.header-balance {
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
+}
+
+.header-balance.is-updating-up {
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.35);
+  transform: scale(1.04);
+}
+
+.header-balance.is-updating-down {
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 10px rgba(124, 58, 237, 0.28);
+}
+
+.balance-delta {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 0.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.balance-delta.is-positive {
+  color: #34d399;
+}
+
+.balance-delta.is-negative {
+  color: #f87171;
+}
+
+/* Контейнер уведомлений (Toasts) */
+.notifications-region {
+  position: fixed;
+  top: 76px;
+  right: 1rem;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: min(360px, calc(100vw - 2rem));
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  background-color: rgba(20, 20, 24, 0.96);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-color);
+  border-left-width: 4px;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  color: var(--text-main);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  animation: toast-in 0.2s ease-out forwards;
+}
+
+.toast.is-leaving {
+  animation: toast-out 0.18s ease-in forwards;
+}
+
+.toast--success {
+  border-left-color: var(--accent-gold);
+}
+
+.toast--error {
+  border-left-color: #ef4444;
+}
+
+.toast--warning {
+  border-left-color: var(--accent-purple);
+}
+
+.toast-close {
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+}
+
+.toast-close:hover {
+  color: var(--text-main);
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.toast-close:focus-visible {
+  outline: 2px solid var(--accent-purple);
+}
+
+/* Вспомогательные кнопки разделов */
+.btn-secondary {
+  appearance: none;
+  background-color: rgba(124, 58, 237, 0.15);
+  border: 1px solid var(--accent-purple);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.6rem 1.1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--accent-purple-hover);
+}
+
+.btn-secondary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn-secondary:focus-visible {
+  outline: 2px solid var(--accent-gold);
+  outline-offset: 2px;
+}
+
+.btn-secondary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Экран слота (Slot Machine) */
+.slot-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 560px;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.6), 0 0 24px rgba(124, 58, 237, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.slot-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.slot-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.03em;
+}
+
+.mode-pill {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  background-color: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  color: var(--accent-gold);
+}
+
+/* Окно барабанов */
+.reels-frame {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  background: linear-gradient(180deg, #070709 0%, #101015 50%, #070709 100%);
+  border: 1px solid #2e2e3a;
+  border-radius: 12px;
+  padding: 1rem;
+  position: relative;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.reels-frame.is-win {
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 22px rgba(212, 175, 55, 0.28);
+}
+
+.reel-window {
+  background-color: #13131a;
+  border: 1px solid #252530;
+  border-radius: 10px;
+  height: 128px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.reel-window.is-spinning .reel-symbol {
+  animation: reel-spin-pulse 0.14s infinite alternate ease-in-out;
+  filter: blur(1px);
+}
+
+.reel-window.is-stopped {
+  animation: reel-bounce 0.22s ease-out;
+}
+
+.reel-symbol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.symbol-svg {
+  width: 48px;
+  height: 48px;
+}
+
+.symbol-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Цветовые акценты символов */
+.symbol--SEVEN .symbol-svg {
+  color: #f87171;
+  filter: drop-shadow(0 0 8px rgba(248, 113, 113, 0.35));
+}
+.symbol--DIAMOND .symbol-svg {
+  color: #38bdf8;
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.35));
+}
+.symbol--CROWN .symbol-svg {
+  color: var(--accent-gold);
+  filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.35));
+}
+.symbol--STAR .symbol-svg {
+  color: #c084fc;
+}
+.symbol--BELL .symbol-svg {
+  color: #fbbf24;
+}
+.symbol--CHERRY .symbol-svg {
+  color: #fb7185;
+}
+
+/* Строка статуса / результата */
+.slot-result-banner {
+  min-height: 42px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 0.55rem 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.slot-result-banner.is-win {
+  border-color: rgba(212, 175, 55, 0.6);
+  color: var(--text-main);
+  background-color: rgba(212, 175, 55, 0.08);
+}
+
+.result-payout {
+  font-weight: 700;
+  color: var(--accent-gold);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Панель выбора ставки */
+.bet-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bet-controls-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.bet-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.45rem;
+}
+
+.bet-btn {
+  appearance: none;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.55rem 0.25rem;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.bet-btn:hover:not(:disabled) {
+  border-color: var(--accent-purple);
+}
+
+.bet-btn.is-active {
+  background-color: rgba(124, 58, 237, 0.22);
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
+.bet-btn:focus-visible {
+  outline: 2px solid var(--accent-purple);
+  outline-offset: 2px;
+}
+
+.bet-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Кнопка запуска вращения */
+.spin-btn {
+  appearance: none;
+  width: 100%;
+  background: linear-gradient(135deg, var(--accent-purple) 0%, #5b21b6 100%);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  border-radius: 10px;
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.9rem 1.25rem;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.35);
+  transition: transform 0.12s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.spin-btn:hover:not(:disabled) {
+  box-shadow: 0 8px 22px rgba(124, 58, 237, 0.5);
+}
+
+.spin-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.spin-btn:focus-visible {
+  outline: 2px solid var(--accent-gold);
+  outline-offset: 2px;
+}
+
+.spin-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Таблица выплат */
+.paytable-box {
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+}
+
+.paytable-title {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 0.6rem;
+}
+
+.paytable-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+.paytable-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.3rem 0.5rem;
+  background-color: rgba(255, 255, 255, 0.02);
+  border-radius: 6px;
+}
+
+.paytable-combo {
+  color: var(--text-muted);
+}
+
+.paytable-mult {
+  color: var(--accent-gold);
+  font-weight: 700;
+}
+
+@keyframes reel-spin-pulse {
+  from {
+    transform: translateY(-10px) scale(0.95);
+    opacity: 0.65;
+  }
+  to {
+    transform: translateY(10px) scale(0.95);
+    opacity: 0.9;
+  }
+}
+
+@keyframes reel-bounce {
+  0% {
+    transform: translateY(-6px);
+  }
+  60% {
+    transform: translateY(3px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@media (max-width: 480px) {
+  .notifications-region {
+    right: 0.75rem;
+    left: 0.75rem;
+    width: auto;
+  }
+
+  .slot-card {
+    padding: 1.1rem;
+  }
+
+  .reel-window {
+    height: 106px;
+  }
+
+  .symbol-svg {
+    width: 38px;
+    height: 38px;
+  }
+
+  .bet-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .paytable-grid {
+    grid-template-columns: 1fr;
+  }
+}

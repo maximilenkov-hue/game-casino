@@ -1,0 +1,166 @@
+.app-shell {
+  width: 100%;
+  max-width: 960px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  padding-top: 64px;
+  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Верхняя панель */
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background-color: rgba(20, 20, 24, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 100;
+}
+
+.header-inner {
+  max-width: 960px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand-logo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-main);
+  user-select: none;
+}
+
+.brand-logo span {
+  color: var(--accent-gold);
+}
+
+.header-balance {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.9rem;
+}
+
+.balance-label {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.balance-value {
+  color: var(--accent-gold);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Центральная область активного экрана */
+.app-main {
+  flex: 1;
+  width: 100%;
+  padding: 1.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Постоянная нижняя навигация */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  min-height: 68px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background-color: rgba(20, 20, 24, 0.96);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border-color);
+  z-index: 100;
+}
+
+.bottom-nav-inner {
+  max-width: 600px;
+  height: 68px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 0 0.5rem;
+}
+
+.nav-item {
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  cursor: pointer;
+  border-radius: 8px;
+  margin: 0.35rem 0.2rem;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.nav-item:hover {
+  color: var(--text-main);
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.nav-item:focus-visible {
+  outline: 2px solid var(--accent-purple);
+  outline-offset: -2px;
+}
+
+.nav-item.is-active {
+  color: var(--accent-gold);
+  background-color: rgba(124, 58, 237, 0.14);
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (max-width: 480px) {
+  .header-inner {
+    padding: 0 0.85rem;
+  }
+
+  .brand-logo {
+    font-size: 1.05rem;
+  }
+
+  .app-main {
+    padding: 1rem 0.85rem;
+  }
+
+  .obsidian-container {
+    padding: 1.75rem 1.25rem;
+    width: 100%;
+  }
+}
