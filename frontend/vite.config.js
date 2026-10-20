@@ -1,3 +1,4 @@
+
 import { defineConfig } from 'vite';
 
 export default defineConfig({
@@ -8,8 +9,9 @@ export default defineConfig({
     strictPort: true,
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:5000/',
-        changeOrigin: true
+        target: 'https://game-casino.onrender.com',
+        changeOrigin: true,
+        secure: true
       }
     }
   }
