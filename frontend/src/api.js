@@ -1,18 +1,36 @@
+
 let csrfToken = null;
 
+const API_BASE_URL = 'https://game-casino.onrender.com';
+
 /**
-* Получает или обновляет CSRF-токен из сессии.
-*/
+ * Преобразует локальный путь API в полный адрес Render.
+ */
+function getApiUrl(url) {
+  if (/^https?:\/\//i.test(url)) {
+    return url;
+  }
+
+  const path = url.startsWith('/') ? url : `/${url}`;
+  return `${API_BASE_URL}${path}`;
+}
+
+/**
+ * Получает CSRF-токен и проверяет сессию.
+ */
 export async function fetchSession() {
   try {
-    const response = await fetch('/api/auth/session', {
+    const response = await fetch(getApiUrl('/api/auth/session'), {
       method: 'GET',
       credentials: 'include'
     });
+
     const data = await response.json();
+
     if (data.csrf_token) {
       csrfToken = data.csrf_token;
     }
+
     return data;
   } catch (error) {
     console.error('Ошибка проверки сессии:', error);
@@ -21,43 +39,46 @@ export async function fetchSession() {
 }
 
 /**
-* Автоматическая проверка и создание гостевой сессии, если пользователь не авторизован.
-*/
+ * Создаёт гостевую сессию, если пользователь не авторизован.
+ */
 export async function ensureGuestSession() {
   const sessionData = await fetchSession();
+
   if (sessionData.authenticated && sessionData.user) {
     return sessionData.user;
   }
 
-  // Если сессии нет — создаем гостя
-  const guestResponse = await apiRequest('/api/auth/guest', 'POST', {});
-  if (guestResponse && guestResponse.user) {
-    return guestResponse.user;
+  try {
+    const guestResponse = await apiRequest('/api/auth/guest', 'POST', {});
+
+    if (guestResponse && guestResponse.user) {
+      return guestResponse.user;
+    }
+  } catch (error) {
+    console.error('Ошибка создания гостевой сессии:', error);
   }
+
   return null;
 }
 
 /**
-* Универсальный метод для отправки запросов к API.
-* @param {string} url
-* @param {'GET' | 'POST' | 'PUT' | 'DELETE'} [method='GET']
-* @param {object | null} [body=null]
-* @returns {Promise<any>}
-*/
+ * Универсальный метод запросов к API.
+ */
 export async function apiRequest(url, method = 'GET', body = null) {
+  const normalizedMethod = method.toUpperCase();
+
   const headers = {
     'Content-Type': 'application/json'
   };
 
-  // Для изменяющих состояние запросов передаем CSRF-токен
-  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method.toUpperCase())) {
+  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(normalizedMethod)) {
     if (csrfToken) {
       headers['X-CSRF-Token'] = csrfToken;
     }
   }
 
   const options = {
-    method: method.toUpperCase(),
+    method: normalizedMethod,
     headers,
     credentials: 'include'
   };
@@ -66,31 +87,31 @@ export async function apiRequest(url, method = 'GET', body = null) {
     options.body = JSON.stringify(body);
   }
 
-  try {
-    const response = await fetch(url, options);
-    
-    // Обновляем токен, если сервер прислал новый в заголовках или ответе
-    const newCsrf = response.headers.get('X-CSRF-Token');
-    if (newCsrf) {
-      csrfToken = newCsrf;
-    }
+  const response = await fetch(getApiUrl(url), options);
 
-    const data = await response.json();
+  const newCsrf = response.headers.get('X-CSRF-Token');
 
-    if (!response.ok) {
-      const errorObj = new Error(data.message || 'Ошибка запроса к серверу');
-      errorObj.status = response.status;
-      errorObj.code = data.error || 'UNKNOWN_ERROR';
-      errorObj.data = data;
-      throw errorObj;
-    }
-
-    if (data.csrf_token) {
-      csrfToken = data.csrf_token;
-    }
-
-    return data;
-  } catch (error) {
-    throw error;
+  if (newCsrf) {
+    csrfToken = newCsrf;
   }
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    const errorObj = new Error(
+      data.message || 'Ошибка запроса к серверу'
+    );
+
+    errorObj.status = response.status;
+    errorObj.code = data.error || 'UNKNOWN_ERROR';
+    errorObj.data = data;
+
+    throw errorObj;
+  }
+
+  if (data.csrf_token) {
+    csrfToken = data.csrf_token;
+  }
+
+  return data;
 }
